@@ -5,6 +5,7 @@ import { Register } from './auth/register/register';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { Accounts } from './pages/accounts/accounts';
 import { Transactions } from './pages/transactions/transactions';
+import { MainLayout } from './components/main-layout/main-layout';
 
 export const routes: Routes = [
     {
@@ -22,17 +23,23 @@ export const routes: Routes = [
     },
 
     // Rotas Internas do Sistema
-    { 
-        path: 'dashboard', 
-        loadComponent: () => Dashboard 
-    },
-    { 
-        path: 'accounts', 
-        loadComponent: () => Accounts 
-    },
     {
-        path: 'transactions', 
-        loadComponent: () => Transactions 
+    path: '',
+    loadComponent: () => MainLayout,
+    children: [
+            { 
+                path: 'dashboard', 
+                loadComponent: () => Dashboard 
+            },
+            { 
+                path: 'accounts', 
+                loadComponent: () => Accounts 
+            },
+            {
+                path: 'transactions', 
+                loadComponent: () => Transactions 
+            },
+        ]
     },
 
     { path: '**', redirectTo: 'login' }

@@ -1,1 +1,97 @@
-<p>dashboard works!</p>
+<div class="min-h-screen bg-slate-50 p-6">
+  <div class="max-w-5xl mx-auto space-y-6">
+    
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Dashboard</h1>
+      <p class="text-slate-500 text-sm">Visão geral das suas finanças neste mês</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      
+      <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-100 flex items-center justify-between">
+        <div class="space-y-1">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Receitas</span>
+          <p class="text-2xl font-black text-emerald-600">
+            {{ totalIncome | currency:'BRL':'symbol':'1.2-2' }}
+          </p>
+        </div>
+        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 text-xl rounded-xl flex items-center justify-center font-bold">
+          📈
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-100 flex items-center justify-between">
+        <div class="space-y-1">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Despesas</span>
+          <p class="text-2xl font-black text-rose-600">
+            {{ totalExpense | currency:'BRL':'symbol':'1.2-2' }}
+          </p>
+        </div>
+        <div class="w-12 h-12 bg-rose-50 text-rose-600 text-xl rounded-xl flex items-center justify-center font-bold">
+          📉
+        </div>
+      </div>
+
+      <div class="p-6 rounded-2xl shadow-md border flex items-center justify-between transition-colors"
+           [ngClass]="currentBalance >= 0 ? 'bg-white border-slate-100' : 'bg-rose-50 border-rose-100'">
+        <div class="space-y-1">
+          <span class="text-xs font-bold uppercase tracking-wider"
+                [ngClass]="currentBalance >= 0 ? 'text-slate-400' : 'text-rose-400'">
+            Balanço Geral
+          </span>
+          <p class="text-2xl font-black"
+             [ngClass]="currentBalance >= 0 ? 'text-slate-900' : 'text-rose-700'">
+            {{ currentBalance | currency:'BRL':'symbol':'1.2-2' }}
+          </p>
+        </div>
+        <div class="w-12 h-12 text-xl rounded-xl flex items-center justify-center font-bold"
+             [ngClass]="currentBalance >= 0 ? 'bg-slate-100 text-slate-700' : 'bg-rose-200 text-rose-700'">
+          💰
+        </div>
+      </div>
+
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <div class="md:col-span-1 bg-gradient-to-br from-emerald-600 to-teal-700 p-6 rounded-2xl text-white shadow-md flex flex-col justify-between">
+        <div>
+          <h3 class="text-lg font-bold mb-2">Seu progresso</h3>
+          <p class="text-emerald-100 text-xs leading-relaxed">
+            Seu balanço está positivo! Manter os gastos sob controle nas categorias de lazer ajudará a atingir sua meta de reserva mais rápido este mês.
+          </p>
+        </div>
+        <div class="text-xs bg-emerald-500/30 p-3 rounded-xl border border-emerald-400/20 mt-4">
+          💡 Dica: Revise seus lançamentos semanalmente.
+        </div>
+      </div>
+
+      <div class="md:col-span-2 bg-white rounded-2xl shadow-md border border-slate-100 p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-bold text-slate-700">Atividades Recentes</h3>
+          <span class="text-xs text-slate-400 font-medium">Últimos 3 lançamentos</span>
+        </div>
+
+        <div class="divide-y divide-slate-100">
+          <div *ngFor="let item of recentTransactions" class="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 bg-slate-50 text-sm rounded-lg flex items-center justify-center">
+                {{ item.type === 'INCOME' ? '💼' : '🛒' }}
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-slate-800">{{ item.description }}</p>
+                <p class="text-slate-400 text-xs">{{ item.date | date:'dd/MM/yyyy' }} • {{ item.category }}</p>
+              </div>
+            </div>
+            <span class="text-sm font-bold" 
+                  [ngClass]="item.type === 'INCOME' ? 'text-emerald-600' : 'text-rose-600'">
+              {{ item.type === 'INCOME' ? '+' : '-' }} {{ item.amount | currency:'BRL' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
