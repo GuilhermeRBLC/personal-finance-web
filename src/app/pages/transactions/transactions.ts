@@ -1,21 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-interface Transaction {
-  id: number;
-  description: string;
-  amount: number;
-  date: string;
-  type: 'INCOME' | 'EXPENSE';
-  category: string;
-  accountId: number;
-}
-
-interface Account {
-  id: number;
-  name: string;
-}
+import { AccountsService, Account } from '../../services/accounts/accounts';
+import { TransactionsService, Transaction } from '../../services/transactions/transactions';
 
 @Component({
   selector: 'app-transactions',
@@ -23,31 +11,20 @@ interface Account {
   templateUrl: './transactions.html',
   styleUrl: './transactions.scss',
 })
-export class Transactions {
+export class Transactions implements OnInit {
 
-  accounts: Account[] = [
-    { id: 1, name: 'Conta Corrente - Itaú' },
-    { id: 2, name: 'Carteira' },
-    { id: 3, name: 'Reserva de Emergência' }
-  ];
+  accounts = signal<Account[]>([]);
 
-  allTransactions: Transaction[] = [
-    { id: 1, description: 'Salário Mensal', amount: 5000, date: '2026-06-01', type: 'INCOME', category: 'Trabalho', accountId: 1 },
-    { id: 2, description: 'Supermercado Pão de Açúcar', amount: 350.20, date: '2026-06-02', type: 'EXPENSE', category: 'Alimentação', accountId: 1 },
-    { id: 3, description: 'Combustível', amount: 120, date: '2026-06-03', type: 'EXPENSE', category: 'Transporte', accountId: 2 },
-    { id: 4, description: 'Rendimento Poupança', amount: 45.50, date: '2026-06-05', type: 'INCOME', category: 'Investimentos', accountId: 3 },
-    { id: 5, description: 'Assinatura Streaming', amount: 55.90, date: '2026-06-05', type: 'EXPENSE', category: 'Entretenimento', accountId: 1 },
-    { id: 6, description: 'Freelance Design', amount: 1200, date: '2026-06-06', type: 'INCOME', category: 'Trabalho', accountId: 2 }
-  ];
+  allTransactions = signal<Transaction[]>([]);
 
-  transactionData = {
-    id: null as number | null,
+  transactionData:Transaction = {
+    id: 0,
     description: '',
     amount: 0,
     date: '',
     type: 'EXPENSE' as 'INCOME' | 'EXPENSE',
     category: '',
-    accountId: '' as number | string
+    accountId: 0
   };
 
   isEditing = false;
@@ -60,7 +37,13 @@ export class Transactions {
   currentPage: number = 1;
   pageSize: number = 10; // Itens por página
 
+
+  private accountsService = inject(AccountsService);
+  private transactionsService = inject(TransactionsService);
+
   ngOnInit() {
+    this.loadAccounts();
+    this.loadTransactions();
     // Inicializa os filtros de data com o mês atual por padrão
     const now = new Date();
     const year = now.getFullYear();
@@ -71,8 +54,26 @@ export class Transactions {
     this.endDate = `${year}-${month}-${lastDay}`;
   }
 
+  loadAccounts() {
+    this.accountsService.getAccounts().subscribe({
+      next: (data) => {
+        this.accounts.set(data);
+      },
+      error: (err) => console.error('Erro ao buscar contas:', err)
+    });
+  }
+
+  loadTransactions() {
+    this.transactionsService.getTransactions().subscribe({
+      next: (data) => {
+        this.allTransactions.set(data);
+      },
+      error: (err) => console.error('Erro ao buscar transações:', err)
+    });
+  }
+
   get filteredTransactions(): Transaction[] {
-    return this.allTransactions.filter(t => {
+    return this.allTransactions().filter(t => {
 
       const matchesSearch = t.description.toLowerCase().includes(this.searchQuery.toLowerCase());
 
@@ -94,25 +95,28 @@ export class Transactions {
   }
 
   onSubmit() {
-    if (this.isEditing && this.transactionData.id !== null) {
-      const index = this.allTransactions.findIndex(t => t.id === this.transactionData.id);
-      if (index !== -1) {
-        this.allTransactions[index] = {
-          ...(this.transactionData as Transaction),
-          accountId: Number(this.transactionData.accountId)
-        };
-      }
+    if (this.isEditing && this.transactionData.id !== null && this.transactionData.id !== undefined) {
+
+      this.transactionsService.updateTransaction(this.transactionData.id, this.transactionData).subscribe({
+        next: () => {
+          this.loadTransactions();
+          this.resetForm();
+          this.currentPage = 1;
+        },
+        error: (err) => console.error('Erro ao atualizar a transação:', err)
+      });
+
     } else {
-      const newTransaction: Transaction = {
-        id: Date.now(),
-        description: this.transactionData.description,
-        amount: this.transactionData.amount,
-        date: this.transactionData.date,
-        type: this.transactionData.type,
-        category: this.transactionData.category,
-        accountId: Number(this.transactionData.accountId)
-      };
-      this.allTransactions.push(newTransaction);
+
+      this.transactionsService.createTransaction(this.transactionData).subscribe({
+        next: () => {
+          this.loadTransactions();
+          this.resetForm();
+          this.currentPage = 1;
+        },
+        error: (err) => console.error('Erro ao criar transação:', err)
+      });
+
     }
     this.resetForm();
     this.currentPage = 1;
@@ -131,16 +135,24 @@ export class Transactions {
     };
   }
 
-  deleteTransaction(id: number) {
+  deleteTransaction(id: number | undefined) {
+    if (!id) return;
+
     if (confirm('Deseja realmente excluir esta transação?')) {
-      this.allTransactions = this.allTransactions.filter(t => t.id !== id);
-      if (this.transactionData.id === id) this.resetForm();
-      if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
+      this.transactionsService.deleteTransaction(id).subscribe({
+        next: () => {
+          this.loadAccounts();
+          if (this.transactionData.id === id) this.resetForm();
+          if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
+        },
+        error: (err) => console.error('Erro ao excluir transação:', err)
+      });
     }
+
   }
 
   getAccountName(accountId: number): string {
-    return this.accounts.find(a => a.id === accountId)?.name || 'Desconhecida';
+    return this.accounts().find(a => a.id === accountId)?.name || 'Desconhecida';
   }
 
   cancelEdit() {
@@ -150,13 +162,13 @@ export class Transactions {
   private resetForm() {
     this.isEditing = false;
     this.transactionData = {
-      id: null,
+      id: 0,
       description: '',
       amount: 0,
       date: '',
       type: 'EXPENSE',
       category: '',
-      accountId: ''
+      accountId: 0
     };
   }
   
