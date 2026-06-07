@@ -54,17 +54,32 @@
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       
-      <div class="md:col-span-1 bg-gradient-to-br from-emerald-600 to-teal-700 p-6 rounded-2xl text-white shadow-md flex flex-col justify-between">
-        <div>
-          <h3 class="text-lg font-bold mb-2">Seu progresso</h3>
-          <p class="text-emerald-100 text-xs leading-relaxed">
-            Seu balanço está positivo! Manter os gastos sob controle nas categorias de lazer ajudará a atingir sua meta de reserva mais rápido este mês.
-          </p>
+      @if (currentBalance >= 0) {
+        <div class="md:col-span-1 bg-gradient-to-br from-emerald-600 to-teal-700 p-6 rounded-2xl text-white shadow-md flex flex-col justify-between">
+          <div>
+            <h3 class="text-lg font-bold mb-2">Seu progresso</h3>
+            <p class="text-emerald-100 text-xs leading-relaxed">
+              Seu balanço está positivo! Manter os gastos sob controle nas categorias de lazer ajudará a atingir sua meta de reserva mais rápido este mês.
+            </p>
+          </div>
+          <div class="text-xs bg-emerald-500/30 p-3 rounded-xl border border-emerald-400/20 mt-4">
+            💡 Dica: Revise seus lançamentos semanalmente.
+          </div>
         </div>
-        <div class="text-xs bg-emerald-500/30 p-3 rounded-xl border border-emerald-400/20 mt-4">
-          💡 Dica: Revise seus lançamentos semanalmente.
+      } 
+      @else {
+        <div class="md:col-span-1 bg-gradient-to-br from-rose-600 to-amber-700 p-6 rounded-2xl text-white shadow-md flex flex-col justify-between">
+          <div>
+            <h3 class="text-lg font-bold mb-2">Atenção ao Orçamento</h3>
+            <p class="text-rose-100 text-xs leading-relaxed">
+              Seu balanço está negativo este mês! É hora de frear os gastos supérfluos e dar uma olhada na sua lista de transações para identificar onde o dinheiro está indo.
+            </p>
+          </div>
+          <div class="text-xs bg-rose-500/30 p-3 rounded-xl border border-rose-400/20 mt-4">
+            ⚠️ Alerta: Evite usar o limite da conta ou cartão de crédito.
+          </div>
         </div>
-      </div>
+      }
 
       <div class="md:col-span-2 bg-white rounded-2xl shadow-md border border-slate-100 p-5 space-y-4">
         <div class="flex items-center justify-between">
