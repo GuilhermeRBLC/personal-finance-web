@@ -36,9 +36,9 @@
     </div>
 
     <div class="p-4 border-t border-slate-50">
-      <a 
-        routerLink="/login" 
-        class="flex items-center gap-3 px-4 py-3 text-rose-600 hover:bg-rose-50 rounded-xl text-sm font-medium transition-all"
+      <a
+        (click)="doLogout()"
+        class="flex items-center gap-3 px-4 py-3 text-rose-600 hover:bg-rose-50 rounded-xl text-sm font-medium transition-all cursor-pointer"
       >
         <span>🚪</span> Sair do Sistema
       </a>

@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 
 
 @Component({
@@ -11,6 +11,13 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 })
 export class MainLayout {
 
+  private router = inject(Router);
+
   userName = 'Guilherme';
+
+  doLogout() {
+    localStorage.clear();
+    this.router.navigate(['/login']);
+  }
 
 }

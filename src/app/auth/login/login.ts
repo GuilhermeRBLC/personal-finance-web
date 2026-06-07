@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Auth } from '../../services/auth/auth';
 
 @Component({
   selector: 'app-login',
@@ -15,9 +16,25 @@ export class Login {
     password: ''
   };
 
+  private authService = inject(Auth);
+  private router = inject(Router);
+
   onSubmit() {
-    console.log('Tentativa de login com:', this.loginData);
-    // Chamar API
+    this.authService.login(this.loginData).subscribe({
+      next: (response) => {
+        console.log('Login com sucesso!', response);
+        
+        if (response.token) {
+          localStorage.setItem('token', response.id);
+        }
+        
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        console.error('Erro ao fazer login:', err);
+        alert('Falha na autenticação. Verifique suas credenciais!');
+      }
+    });
   }
 
 }
