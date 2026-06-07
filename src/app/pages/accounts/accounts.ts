@@ -1,13 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-// Definindo a interface para tipar nossa Conta
-interface Account {
-  id: number;
-  name: string;
-  balance: number;
-}
+import { AccountsService, Account } from '../../services/accounts/accounts';
 
 @Component({
   selector: 'app-accounts',
@@ -15,40 +9,51 @@ interface Account {
   templateUrl: './accounts.html',
   styleUrl: './accounts.scss',
 })
-export class Accounts {
+export class Accounts implements OnInit {
   
-  accounts: Account[] = [
-    { id: 1, name: 'Conta Corrente - Itaú', balance: 1500.50 },
-    { id: 2, name: 'Carteira', balance: 120.00 },
-    { id: 3, name: 'Reserva de Emergência', balance: 5000.00 }
-  ];
+  accounts = signal<Account[]>([]);
 
-  accountData = {
-    id: null as number | null,
+  accountData:Account = {
+    id: 0,
     name: '',
-    balance: 0
+    balance: 0,
+    userId: 0
   };
 
   isEditing = false;
 
+  private accountsService = inject(AccountsService);
+
+  ngOnInit() {
+    this.loadAccounts();
+  }
+
+  loadAccounts() {
+    this.accountsService.getAccounts().subscribe({
+      next: (data) => {
+        this.accounts.set(data);
+      },
+      error: (err) => console.error('Erro ao buscar contas:', err)
+    });
+  }
+
   onSubmit() {
-    if (this.isEditing && this.accountData.id !== null) {
-      const index = this.accounts.findIndex(a => a.id === this.accountData.id);
-      if (index !== -1) {
-        this.accounts[index] = {
-          id: this.accountData.id,
-          name: this.accountData.name,
-          balance: this.accountData.balance
-        };
-      }
-      this.isEditing = false;
+    if (this.isEditing && this.accountData.id !== null && this.accountData.id !== undefined) {
+      this.accountsService.updateAccount(this.accountData.id, this.accountData).subscribe({
+        next: () => {
+          this.loadAccounts();
+          this.resetForm();
+        },
+        error: (err) => console.error('Erro ao atualizar conta:', err)
+      });
     } else {
-      const newAccount: Account = {
-        id: Date.now(),
-        name: this.accountData.name,
-        balance: this.accountData.balance
-      };
-      this.accounts.push(newAccount);
+      this.accountsService.createAccount(this.accountData).subscribe({
+        next: () => {
+          this.loadAccounts();
+          this.resetForm();
+        },
+        error: (err) => console.error('Erro ao criar conta:', err)
+      });
     }
 
     this.resetForm();
@@ -57,19 +62,24 @@ export class Accounts {
   editAccount(account: Account) {
     this.isEditing = true;
     this.accountData = {
-      id: account.id,
+      id: account.id || 0,
       name: account.name,
-      balance: account.balance
+      balance: account.balance,
+      userId: 0
     };
   }
 
-  deleteAccount(id: number) {
+  deleteAccount(id: number | undefined) {
+    if (!id) return;
+
     if (confirm('Tem certeza que deseja excluir esta conta?')) {
-      this.accounts = this.accounts.filter(account => account.id !== id);
-      // Se estivesse editando a conta excluída, limpa o formulário
-      if (this.accountData.id === id) {
-        this.resetForm();
-      }
+      this.accountsService.deleteAccount(id).subscribe({
+        next: () => {
+          this.loadAccounts();
+          if (this.accountData.id === id) this.resetForm();
+        },
+        error: (err) => console.error('Erro ao excluir conta:', err)
+      });
     }
   }
 
@@ -80,9 +90,10 @@ export class Accounts {
   private resetForm() {
     this.isEditing = false;
     this.accountData = {
-      id: null,
+      id: 0,
       name: '',
-      balance: 0
+      balance: 0,
+      userId: 0
     };
   }
 

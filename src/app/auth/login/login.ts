@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Auth } from '../../services/auth/auth';
+import { AuthService } from '../../services/auth/auth';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +16,7 @@ export class Login {
     password: ''
   };
 
-  private authService = inject(Auth);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
   onSubmit() {
@@ -24,7 +24,7 @@ export class Login {
       next: (response) => {
         console.log('Login com sucesso!', response);
         
-        if (response.token) {
+        if (response.id) {
           localStorage.setItem('token', response.id);
         }
         
