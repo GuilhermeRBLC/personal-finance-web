@@ -1,1 +1,126 @@
-<p>accounts works!</p>
+<div class="min-h-screen bg-slate-50 p-6">
+  <div class="max-w-4xl mx-auto space-y-6">
+    
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Gerenciar Contas</h1>
+      <p class="text-slate-500 text-sm">Adicione, edite ou remova suas contas bancárias e carteiras</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-100">
+      <h2 class="text-lg font-semibold text-slate-700 mb-4">
+        {{ isEditing ? 'Editar Conta' : 'Nova Conta' }}
+      </h2>
+
+      <form (ngSubmit)="onSubmit()" #accountForm="ngForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        
+        <div>
+          <label for="name" class="block text-sm font-semibold text-slate-700 mb-1.5">Nome da Conta</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name"
+            [(ngModel)]="accountData.name"
+            required
+            minlength="3"
+            maxlength="150"
+            placeholder="Ex: Nubank, Dinheiro em Espécie" 
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-sm"
+          />
+        </div>
+
+        <div>
+          <label for="balance" class="block text-sm font-semibold text-slate-700 mb-1.5">Saldo (R$)</label>
+          <input 
+            type="number" 
+            id="balance" 
+            name="balance"
+            [(ngModel)]="accountData.balance"
+            required
+            min="0"
+            step="0.01"
+            placeholder="0,00" 
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-sm"
+          />
+        </div>
+        
+        <div class="flex gap-2">
+          <button 
+            type="submit" 
+            [disabled]="!accountForm.form.valid"
+            class="flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-medium rounded-xl shadow-sm transition-all text-sm"
+          >
+            {{ isEditing ? 'Atualizar' : 'Adicionar' }}
+          </button>
+          
+          <button 
+            *ngIf="isEditing"
+            type="button"
+            (click)="cancelEdit()"
+            class="py-2.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl transition-all text-sm"
+          >
+            Cancelar
+          </button>
+        </div>
+
+      </form>
+
+      <div class="mt-2 text-xs text-rose-500 space-y-1">
+        <p *ngIf="accountForm.controls['name']?.touched && accountForm.controls['name']?.errors?.['minlength']">
+          * O nome da conta deve ter pelo menos 3 caracteres.
+        </p>
+        <p *ngIf="accountForm.controls['balance']?.touched && accountForm.controls['balance']?.errors?.['min']">
+          * O saldo inicial não pode ser menor que zero.
+        </p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden">
+      <div class="p-5 border-b border-slate-100">
+        <h2 class="text-lg font-semibold text-slate-700">Suas Contas Registradas</h2>
+      </div>
+
+      <div *ngIf="accounts.length === 0" class="p-8 text-center text-slate-400 text-sm">
+        Nenhuma conta cadastrada até o momento. Use o formulário acima para adicionar.
+      </div>
+
+      <div *ngIf="accounts.length > 0" class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-slate-400 text-xs font-semibold uppercase border-b border-slate-100">
+              <th class="py-4 px-6">Nome da Conta</th>
+              <th class="py-4 px-6 text-right">Saldo</th>
+              <th class="py-4 px-6 text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
+            <tr *ngFor="let account of accounts" class="hover:bg-slate-50/50 transition-colors">
+              <td class="py-4 px-6 font-medium text-slate-900">{{ account.name }}</td>
+              <td class="py-4 px-6 text-right font-semibold text-slate-900">
+                {{ account.balance | currency:'BRL':'symbol':'1.2-2' }}
+              </td>
+              <td class="py-4 px-6 text-center">
+                <div class="flex justify-center gap-3">
+
+                  <button 
+                    (click)="editAccount(account)"
+                    class="text-amber-600 hover:text-amber-700 font-medium transition-colors"
+                  >
+                    Editar
+                  </button>
+
+                  <button 
+                    (click)="deleteAccount(account.id)"
+                    class="text-rose-600 hover:text-rose-700 font-medium transition-colors"
+                  >
+                    Excluir
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
