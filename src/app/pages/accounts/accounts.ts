@@ -16,8 +16,7 @@ export class Accounts implements OnInit {
   accountData:Account = {
     id: 0,
     name: '',
-    balance: 0,
-    userId: 0
+    balance: 0
   };
 
   isEditing = false;
@@ -64,8 +63,7 @@ export class Accounts implements OnInit {
     this.accountData = {
       id: account.id || 0,
       name: account.name,
-      balance: account.balance,
-      userId: 0
+      balance: account.balance
     };
   }
 
@@ -92,8 +90,7 @@ export class Accounts implements OnInit {
     this.accountData = {
       id: 0,
       name: '',
-      balance: 0,
-      userId: 0
+      balance: 0
     };
   }
 

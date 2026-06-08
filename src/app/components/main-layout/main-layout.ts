@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { AuthService } from '../../services/auth/auth';
 
 
 @Component({
@@ -9,14 +10,19 @@ import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/rou
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.scss',
 })
-export class MainLayout {
+export class MainLayout implements OnInit {
 
   private router = inject(Router);
+  private authService = inject(AuthService); 
 
-  userName = 'Guilherme';
+  userName = '';
+
+  ngOnInit(): void {
+    this.userName = this.authService.getUserName() || '';
+  }
 
   doLogout() {
-    localStorage.clear();
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 

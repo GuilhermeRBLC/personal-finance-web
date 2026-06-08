@@ -1,7 +1,12 @@
 import { Service } from '@angular/core';
 import { inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
+
+export interface LoginResponse {
+  token: string;
+  userName: string;
+}
 
 @Service()
 export class AuthService {
@@ -14,6 +19,23 @@ export class AuthService {
     }
 
     login(credentials: any): Observable<any> {
-        return this.http.post(`${this.apiUrl}/login`, credentials);
+        return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
+            tap(response => {
+                localStorage.setItem("token", response.token);
+                localStorage.setItem("username", response.userName);
+            })
+        );
+    }
+
+    logout(): void {
+        localStorage.removeItem("token");
+    }
+
+    getUserName(): string | null {
+        return localStorage.getItem("username");
+    }
+
+    getToken(): string | null {
+        return localStorage.getItem("token");
     }
 }

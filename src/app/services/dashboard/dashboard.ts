@@ -19,8 +19,7 @@ export class DashboardService {
     private apiUrl = 'http://localhost:8080/api/dashboard';
 
     getSummary(): Observable<DashboardSummary> {
-        const userId = localStorage.getItem('token');
-        return this.http.get<DashboardSummary>(`${this.apiUrl}/summary/${userId}`);
+        return this.http.get<DashboardSummary>(`${this.apiUrl}/summary`);
     }
 
 }

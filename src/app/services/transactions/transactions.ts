@@ -21,8 +21,7 @@ export class TransactionsService {
     private apiUrl = 'http://localhost:8080/api/transactions';
 
     getTransactions(): Observable<Transaction[]> {
-        const userId = localStorage.getItem('token');
-        return this.http.get<Transaction[]>(`${this.apiUrl}/user/${userId}`);
+        return this.http.get<Transaction[]>(`${this.apiUrl}/user`);
     }
 
     createTransaction(transaction: Transaction): Observable<Transaction> {

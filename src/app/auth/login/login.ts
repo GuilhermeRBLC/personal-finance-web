@@ -23,11 +23,6 @@ export class Login {
     this.authService.login(this.loginData).subscribe({
       next: (response) => {
         console.log('Login com sucesso!', response);
-        
-        if (response.id) {
-          localStorage.setItem('token', response.id);
-        }
-        
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {

@@ -7,7 +7,6 @@ export interface Account {
   id?: number;
   name: string;
   balance: number;
-  userId: number;
 }
 
 @Service()
@@ -18,19 +17,14 @@ export class AccountsService {
     private apiUrl = 'http://localhost:8080/api/accounts';
 
     getAccounts(): Observable<Account[]> {
-        const userId = localStorage.getItem('token');
-        return this.http.get<Account[]>(`${this.apiUrl}/user/${userId}`);
+        return this.http.get<Account[]>(`${this.apiUrl}/user`);
     }
 
     createAccount(account: Account): Observable<Account> {
-        const userId = localStorage.getItem('token');
-        account.userId = parseInt(userId || "0");
         return this.http.post<Account>(this.apiUrl, account);
     }
 
     updateAccount(id: number, account: Account): Observable<Account> {
-        const userId = localStorage.getItem('token');
-        account.userId = parseInt(userId || "0");
         return this.http.put<Account>(`${this.apiUrl}/${id}`, account);
     }
 
