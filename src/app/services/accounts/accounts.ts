@@ -2,6 +2,7 @@ import { Service } from '@angular/core';
 import { inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ConfigService } from '../config/config';
 
 export interface Account {
   id?: number;
@@ -13,8 +14,9 @@ export interface Account {
 export class AccountsService {
 
     private http = inject(HttpClient);
+    private config = inject(ConfigService);
 
-    private apiUrl = 'http://localhost:8080/api/accounts';
+    private apiUrl = `${this.config.apiUrl}/api/accounts`;
 
     getAccounts(): Observable<Account[]> {
         return this.http.get<Account[]>(`${this.apiUrl}/user`);

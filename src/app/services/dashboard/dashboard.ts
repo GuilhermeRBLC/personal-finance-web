@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Transaction } from '../transactions/transactions';
+import { ConfigService } from '../config/config';
 
 export interface DashboardSummary {
   totalIncome: number;
@@ -15,8 +16,9 @@ export interface DashboardSummary {
 export class DashboardService {
 
     private http = inject(HttpClient);
+    private config = inject(ConfigService);
 
-    private apiUrl = 'http://localhost:8080/api/dashboard';
+    private apiUrl = `${this.config.apiUrl}/api/dashboard`;
 
     getSummary(): Observable<DashboardSummary> {
         return this.http.get<DashboardSummary>(`${this.apiUrl}/summary`);

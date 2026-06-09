@@ -2,6 +2,7 @@ import { Service } from '@angular/core';
 import { inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ConfigService } from '../config/config';
 
 export interface Transaction {
   id: number;
@@ -17,8 +18,9 @@ export interface Transaction {
 export class TransactionsService {
     
     private http = inject(HttpClient);
+    private config = inject(ConfigService);
 
-    private apiUrl = 'http://localhost:8080/api/transactions';
+    private apiUrl = `${this.config.apiUrl}/api/transactions`;
 
     getTransactions(): Observable<Transaction[]> {
         return this.http.get<Transaction[]>(`${this.apiUrl}/user`);

@@ -2,6 +2,7 @@ import { Service } from '@angular/core';
 import { inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { ConfigService } from '../config/config';
 
 export interface LoginResponse {
   token: string;
@@ -11,8 +12,9 @@ export interface LoginResponse {
 @Service()
 export class AuthService {
     private http = inject(HttpClient);
+    private config = inject(ConfigService);
 
-    private apiUrl = 'http://localhost:8080/api/users';
+    private apiUrl = `${this.config.apiUrl}/api/users`;
 
     register(userData: any): Observable<any> {
         return this.http.post(`${this.apiUrl}`, userData);
