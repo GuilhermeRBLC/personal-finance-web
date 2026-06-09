@@ -1,5 +1,5 @@
 # Build do Angular
-FROM node:20-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
@@ -8,7 +8,7 @@ RUN npm run build -- --configuration=production
 
 # PRODUÇÃO (Nginx)
 FROM nginx:alpine
-COPY --from=build /app/dist/personal-finance-web /usr/share/nginx/html
+COPY --from=build /app/dist/personal-finance-web/browser /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copia o script de inicialização
