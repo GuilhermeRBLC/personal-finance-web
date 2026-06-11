@@ -30,7 +30,7 @@ export class AuthService {
     }
 
     isAuthenticated(): boolean {
-        return localStorage.getItem("token") !== "";
+        return localStorage.getItem("token") !== "" && localStorage.getItem("token") !== null;
     }
 
     logout(): void {
